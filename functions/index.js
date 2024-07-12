@@ -4,6 +4,10 @@ const {logger} = require("firebase-functions");
 const qs = require("qs");
 const {getAuth} = require("firebase-admin/auth");
 const axios = require("axios");
+const {getFirestore} = require("firebase-admin/firestore");
+const admin = require("firebase-admin");
+
+admin.initializeApp();
 
 exports.helloWorld = onRequest((request, response) => {
   logger.info("Hello logs!", {structuredData: true});
@@ -20,9 +24,27 @@ exports.token = onRequest({cors: true}, async (req, res) => {
   const {code} = req.body;
   const accessToken = await fetchSpotifyAccessToken(code);
   const songs = await fetchUserSongs(accessToken);
+  saveSongsToFirebaseStore(songs);
   console.log(songs);
   res.status(200).json({songs});
 });
+
+
+const saveSongsToFirebaseStore = async (songs) => {
+  const db = getFirestore();
+  const songsCollection = db.collection("songs");
+
+  const batch = db.batch();
+
+  songs.items.forEach((song) => {
+    const songRef = songsCollection.doc(song.track.id);
+    batch.set(songRef, song.track);
+  });
+
+  await batch.commit();
+  console.log("Songs have been saved to Firestore.");
+};
+
 
 const fetchSpotifyAccessToken = async (code) => {
   try {
