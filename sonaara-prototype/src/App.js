@@ -3,6 +3,7 @@ import Friends from "./Screens/Friends";
 import NoFriends from "./Screens/NoFriends";
 import Discover from "./Screens/Discover";
 import Tunez from "./Screens/Tunez";
+import Redirect from "./Screens/Redirect"
 import "./styles.css";
 import {
   createBrowserRouter,
@@ -16,10 +17,13 @@ const router = createBrowserRouter([
     path: "/",
     element: <Navigate to="/login" />,
   },
-
   {
     path: "/login",
     element: <Login />,
+  },
+  {
+    path: "/redirect",
+    element: <Redirect />
   },
   {
     path: "/no-friends",

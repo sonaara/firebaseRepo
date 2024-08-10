@@ -3,11 +3,18 @@ import Button from "../components/Button";
 import Icon from "../components/Icon";
 import { Link } from "react-router-dom";
 
+const SPOTIFY_CLIENT_ID = "02aacbb9263148b9b80ab9f43a05c7a3";
+const SPOTIFY_REDIRECT_URI = "http://localhost:3000/redirect";
+const SPOTIFY_AUTH_URL = "https://accounts.spotify.com/authorize";
+const SPOTIFY_SCOPE =
+  "user-read-private user-read-email user-library-read user-top-read user-read-playback-state user-read-recently-played";
+
 const LoginScreen = () => {
   const login = async () => {
-    const response = await fetch("http://127.0.0.1:5001/sonaara-21356/us-central1/helloWorld");
-    const test = await response.json();
-    console.log(test);
+     const authUrl = `${SPOTIFY_AUTH_URL}?client_id=${SPOTIFY_CLIENT_ID}&redirect_uri=${encodeURIComponent(
+      SPOTIFY_REDIRECT_URI
+    )}&scope=${encodeURIComponent(SPOTIFY_SCOPE)}&response_type=code`;
+    window.location.href = authUrl;   
   };
   return (
     <div style={styles.container}>
