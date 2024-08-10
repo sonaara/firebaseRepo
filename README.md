@@ -1,0 +1,1 @@
+NOTE: always use node 18. Eric got some warnings/errors when trying to run node 20.
