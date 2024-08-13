@@ -3,14 +3,13 @@ import { useSearchParams } from "react-router-dom";
 
 const Redirect = () => {
   const [searchParams] = useSearchParams();
+  const code = searchParams.get("code");
 
   useEffect(() => {
-    const code = searchParams.get("code");
-
     if (code) {
       sendTokenRequest(code);
     }
-  }, [searchParams]);
+  }, [code]);
 
   return (
     <div className="App">
@@ -19,7 +18,10 @@ const Redirect = () => {
   );
 };
 
+let requestSent = false
 const sendTokenRequest = async (code) => {
+  if (requestSent) return;
+  requestSent = true;
   const response = await fetch(
     "http://127.0.0.1:5001/sonaara-21356/us-central1/token",
     {

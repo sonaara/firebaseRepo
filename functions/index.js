@@ -22,11 +22,16 @@ const SPOTIFY_TOKEN_URL = "https://accounts.spotify.com/api/token";
 exports.token = onRequest({cors: true}, async (req, res) => {
   console.log(req.body);
   const {code} = req.body;
-  const accessToken = await fetchSpotifyAccessToken(code);
-  const songs = await fetchUserSongs(accessToken);
-  saveSongsToFirebaseStore(songs);
-  console.log(songs);
-  res.status(200).json({songs});
+  try {
+      const accessToken = await fetchSpotifyAccessToken(code);
+      const songs = await fetchUserSongs(accessToken);
+      saveSongsToFirebaseStore(songs);
+      console.log(songs);
+    res.status(200).json({songs});
+  } catch (error) {
+      console.error("Error fetching Spotify access token:", error.message);
+      res.status(500).json({error: error.message});
+  }
 });
 
 
