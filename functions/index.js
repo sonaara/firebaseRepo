@@ -1,9 +1,6 @@
 /* eslint-disable camelcase, max-len */
 const {onRequest} = require("firebase-functions/v2/https");
 const {logger} = require("firebase-functions");
-const qs = require("qs");
-const {getAuth} = require("firebase-admin/auth");
-const axios = require("axios");
 const {getFirestore} = require("firebase-admin/firestore");
 const admin = require("firebase-admin");
 
