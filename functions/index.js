@@ -23,14 +23,14 @@ exports.token = onRequest({cors: true}, async (req, res) => {
   console.log(req.body);
   const {code} = req.body;
   try {
-      const accessToken = await fetchSpotifyAccessToken(code);
-      const songs = await fetchUserSongs(accessToken);
-      saveSongsToFirebaseStore(songs);
-      console.log(songs);
+    const accessToken = await fetchSpotifyAccessToken(code);
+    const songs = await fetchUserSongs(accessToken);
+    saveSongsToFirebaseStore(songs);
+    console.log(songs);
     res.status(200).json({songs});
   } catch (error) {
-      console.error("Error fetching Spotify access token:", error.message);
-      res.status(500).json({error: error.message});
+    console.error("Error fetching Spotify access token:", error.message);
+    res.status(500).json({error: error.message});
   }
 });
 
