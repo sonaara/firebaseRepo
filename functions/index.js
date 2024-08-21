@@ -12,7 +12,7 @@ exports.helloWorld = onRequest({cors: true}, (request, response) => {
 });
 
 const SPOTIFY_CLIENT_ID = "02aacbb9263148b9b80ab9f43a05c7a3";
-const SPOTIFY_CLIENT_SECRET = "9e14c26637d347b0a9ad2257a3abfcc7"; // Add your Spotify client secret here
+const SPOTIFY_CLIENT_SECRET = "9e14c26637d347b0a9ad2257a3abfcc7";
 const SPOTIFY_REDIRECT_URI = "http://localhost:3000/redirect";
 const SPOTIFY_TOKEN_URL = "https://accounts.spotify.com/api/token";
 
@@ -24,10 +24,10 @@ exports.token = onRequest({cors: true}, async (req, res) => {
     const profile = await fetchUserProfile(accessToken);
     console.log(profile);
 
-    saveUserProfileAndTokens(profile, accessToken, refreshToken);
+    await saveUserProfileAndTokens(profile, accessToken, refreshToken);
 
     const songs = await fetchUserSongs(accessToken);
-    saveSongsToFirebaseStore(songs);
+    await saveSongsToFirebaseStore(songs);
     console.log(songs);
     res.status(200).json({songs});
   } catch (error) {
@@ -39,27 +39,19 @@ exports.token = onRequest({cors: true}, async (req, res) => {
 const saveUserProfileAndTokens = async (profile, accessToken, refreshToken) => {
   const db = getFirestore();
   const usersCollection = db.collection("users");
-
   const userDoc = usersCollection.doc(profile.id);
 
   await userDoc.set({
-    profile: {
-      ...profile,
-    },
-    tokens: {
-      accessToken,
-      refreshToken,
-    },
+    profile: {...profile},
+    tokens: {accessToken, refreshToken},
   });
 
   console.log(`User profile and tokens have been saved for user: ${profile.id}`);
 };
 
-
 const saveSongsToFirebaseStore = async (songs) => {
   const db = getFirestore();
   const songsCollection = db.collection("songs");
-
   const batch = db.batch();
 
   songs.items.forEach((song) => {
@@ -73,20 +65,15 @@ const saveSongsToFirebaseStore = async (songs) => {
 
 const fetchUserProfile = async (accessToken) => {
   const response = await fetch("https://api.spotify.com/v1/me", {
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-    },
+    headers: {Authorization: `Bearer ${accessToken}`},
   });
 
   if (!response.ok) {
     throw new Error(`Error fetching user profile: ${response.statusText}`);
   }
 
-  const data = await response.json();
-
-  return data;
+  return await response.json();
 };
-
 
 const fetchSpotifyAccessAndRefreshToken = async (code) => {
   try {
@@ -108,7 +95,6 @@ const fetchSpotifyAccessAndRefreshToken = async (code) => {
     }
 
     const {access_token: accessToken, refresh_token: refreshToken} = await response.json();
-
     return {accessToken, refreshToken};
   } catch (error) {
     console.error("Error fetching Spotify access token:", error.message);
@@ -118,16 +104,12 @@ const fetchSpotifyAccessAndRefreshToken = async (code) => {
 
 const fetchUserSongs = async (accessToken) => {
   const response = await fetch("https://api.spotify.com/v1/me/tracks", {
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-    },
+    headers: {Authorization: `Bearer ${accessToken}`},
   });
 
   if (!response.ok) {
     throw new Error(`Error fetching user songs: ${response.statusText}`);
   }
 
-  const data = await response.json();
-
-  return data;
+  return await response.json();
 };
