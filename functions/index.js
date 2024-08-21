@@ -20,7 +20,12 @@ exports.token = onRequest({cors: true}, async (req, res) => {
   console.log(req.body);
   const {code} = req.body;
   try {
-    const accessToken = await fetchSpotifyAccessToken(code);
+    const {accessToken, refreshToken} = await fetchSpotifyAccessAndRefreshToken(code);
+    const profile = await fetchUserProfile(accessToken);
+    console.log(profile);
+
+    saveUserProfileAndTokens(profile, accessToken, refreshToken);
+
     const songs = await fetchUserSongs(accessToken);
     saveSongsToFirebaseStore(songs);
     console.log(songs);
@@ -30,6 +35,25 @@ exports.token = onRequest({cors: true}, async (req, res) => {
     res.status(500).json({error: error.message});
   }
 });
+
+const saveUserProfileAndTokens = async (profile, accessToken, refreshToken) => {
+  const db = getFirestore();
+  const usersCollection = db.collection("users");
+
+  const userDoc = usersCollection.doc(profile.id);
+
+  await userDoc.set({
+    profile: {
+      ...profile,
+    },
+    tokens: {
+      accessToken,
+      refreshToken,
+    },
+  });
+
+  console.log(`User profile and tokens have been saved for user: ${profile.id}`);
+};
 
 
 const saveSongsToFirebaseStore = async (songs) => {
@@ -47,8 +71,24 @@ const saveSongsToFirebaseStore = async (songs) => {
   console.log("Songs have been saved to Firestore.");
 };
 
+const fetchUserProfile = async (accessToken) => {
+  const response = await fetch("https://api.spotify.com/v1/me", {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
 
-const fetchSpotifyAccessToken = async (code) => {
+  if (!response.ok) {
+    throw new Error(`Error fetching user profile: ${response.statusText}`);
+  }
+
+  const data = await response.json();
+
+  return data;
+};
+
+
+const fetchSpotifyAccessAndRefreshToken = async (code) => {
   try {
     const response = await fetch(SPOTIFY_TOKEN_URL, {
       method: "POST",
@@ -67,10 +107,9 @@ const fetchSpotifyAccessToken = async (code) => {
       throw new Error(`Error fetching Spotify access token: ${response.statusText}`);
     }
 
-    const data = await response.json();
-    console.log("Access Token:", data.access_token);
+    const {access_token: accessToken, refresh_token: refreshToken} = await response.json();
 
-    return data.access_token;
+    return {accessToken, refreshToken};
   } catch (error) {
     console.error("Error fetching Spotify access token:", error.message);
     throw error;
