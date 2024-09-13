@@ -21,6 +21,8 @@ exports.token = onRequest({cors: true}, async (req, res) => {
   const {code} = req.body;
   try {
     const {accessToken, refreshToken} = await fetchSpotifyAccessAndRefreshToken(code);
+    console.log('access token:')
+    console.log(accessToken)
     const profile = await fetchUserProfile(accessToken);
     console.log(profile);
 
@@ -40,11 +42,6 @@ const saveUserProfileAndTokens = async (profile, accessToken, refreshToken) => {
   const db = getFirestore();
   const usersCollection = db.collection("users");
   const userDoc = usersCollection.doc(profile.id);
-
-  await userDoc.set({
-    profile: {...profile},
-    tokens: {accessToken, refreshToken},
-  });
 
   console.log(`User profile and tokens have been saved for user: ${profile.id}`);
 };
@@ -67,6 +64,8 @@ const fetchUserProfile = async (accessToken) => {
   const response = await fetch("https://api.spotify.com/v1/me", {
     headers: {Authorization: `Bearer ${accessToken}`},
   });
+  console.log('error!!!!!!')
+  console.log(response)
 
   if (!response.ok) {
     throw new Error(`Error fetching user profile: ${response.statusText}`);
