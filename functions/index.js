@@ -3,6 +3,7 @@ const {onRequest} = require("firebase-functions/v2/https");
 const {logger} = require("firebase-functions");
 const {getFirestore} = require("firebase-admin/firestore");
 const admin = require("firebase-admin");
+const {log} = require("firebase-functions/logger");
 
 admin.initializeApp();
 
@@ -20,9 +21,11 @@ exports.token = onRequest({cors: true}, async (req, res) => {
   console.log(req.body);
   const {code} = req.body;
   try {
+    console.log("getting access token");
     const {accessToken, refreshToken} = await fetchSpotifyAccessAndRefreshToken(code);
     console.log('access token:')
     console.log(accessToken)
+    console.log("getting profile");
     const profile = await fetchUserProfile(accessToken);
     console.log(profile);
 
@@ -37,6 +40,30 @@ exports.token = onRequest({cors: true}, async (req, res) => {
     res.status(500).json({error: error.message});
   }
 });
+
+exports.getAllSongs = onRequest({cors: true}, async (req, res) => {
+  try {
+    const db = getFirestore();
+    const songsCollection = db.collection("songs");
+    const snapshot = await songsCollection.get();
+
+    if (snapshot.empty) {
+      res.status(404).json({message: "No songs found"});
+      return;
+    }
+
+    const songs = [];
+    snapshot.forEach((doc) => {
+      songs.push({id: doc.id, ...doc.data()});
+    });
+
+    res.status(200).json({songs});
+  } catch (error) {
+    console.error("Error fetching songs from Firestore:", error.message);
+    res.status(500).json({error: error.message});
+  }
+});
+
 
 const saveUserProfileAndTokens = async (profile, accessToken, refreshToken) => {
   const db = getFirestore();
@@ -67,11 +94,14 @@ const fetchUserProfile = async (accessToken) => {
   console.log('error!!!!!!')
   console.log(response)
 
+  const json = await response.text();
+  console.log(json);
+
   if (!response.ok) {
     throw new Error(`Error fetching user profile: ${response.statusText}`);
   }
 
-  return await response.json();
+  return json;
 };
 
 const fetchSpotifyAccessAndRefreshToken = async (code) => {
