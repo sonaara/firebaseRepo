@@ -23,6 +23,8 @@ exports.token = onRequest({cors: true}, async (req, res) => {
   try {
     console.log("getting access token");
     const {accessToken, refreshToken} = await fetchSpotifyAccessAndRefreshToken(code);
+    console.log('access token:')
+    console.log(accessToken)
     console.log("getting profile");
     const profile = await fetchUserProfile(accessToken);
     console.log(profile);
@@ -112,6 +114,8 @@ const fetchUserProfile = async (accessToken) => {
   const response = await fetch("https://api.spotify.com/v1/me", {
     headers: {Authorization: `Bearer ${accessToken}`},
   });
+  console.log('error!!!!!!')
+  console.log(response)
 
   if (!response.ok) {
     const error = new Error(`Error fetching user profile: ${response.statusText}`);
