@@ -66,14 +66,32 @@ exports.getAllSongs = onRequest({cors: true}, async (req, res) => {
 const saveUserProfileAndTokens = async (profile, accessToken, refreshToken) => {
   const db = getFirestore();
   const usersCollection = db.collection("users");
-  const userDoc = usersCollection.doc(profile.id);
+
+  // Parse the profile if it's a string
+  let parsedProfile = profile;
+  if (typeof profile === "string") {
+    try {
+      parsedProfile = JSON.parse(profile);
+    } catch (error) {
+      console.error("Error parsing profile:", error);
+      throw new Error("Invalid profile data");
+    }
+  }
+
+  // Check if the parsed profile has an id
+  if (!parsedProfile.id) {
+    console.error("Profile is missing id:", parsedProfile);
+    throw new Error("Profile is missing id");
+  }
+
+  const userDoc = usersCollection.doc(parsedProfile.id);
 
   await userDoc.set({
-    profile: {...profile},
+    profile: parsedProfile,
     tokens: {accessToken, refreshToken},
   });
 
-  console.log(`User profile and tokens have been saved for user: ${profile.id}`);
+  console.log(`User profile and tokens have been saved for user: ${parsedProfile.id}`);
 };
 
 const saveSongsToFirebaseStore = async (songs) => {
@@ -95,14 +113,13 @@ const fetchUserProfile = async (accessToken) => {
     headers: {Authorization: `Bearer ${accessToken}`},
   });
 
-  const json = await response.text();
-  console.log(json);
-
   if (!response.ok) {
-    throw new Error(`Error fetching user profile: ${response.statusText}`);
+    const error = new Error(`Error fetching user profile: ${response.statusText}`);
+    error.statusCode = response.status;
+    throw error;
   }
 
-  return json;
+  return response.json(); // This will return parsed JSON directly
 };
 
 const fetchSpotifyAccessAndRefreshToken = async (code) => {
