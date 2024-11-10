@@ -48,7 +48,6 @@ const Button = (props) => {
     ...styles,
     ...roleStyles[props.role],
   };
-  console.log(localStyles);
 
   const button = (
     <button onClick={props.onClick} style={localStyles}>
