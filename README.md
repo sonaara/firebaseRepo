@@ -10,3 +10,8 @@
 
 ## Other notes
 NOTE: always use node 18. Eric got some warnings/errors when trying to run node 20.
+
+To switch to node 18 using `nvm`, run the command `nvm use 18`.
+- In case that version of node isn't installed, first install it by running `nvm install 18`
+
+# Structure
