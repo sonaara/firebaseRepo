@@ -12,8 +12,8 @@ exports.helloWorld = onRequest({cors: true}, (request, response) => {
   response.send({message: "do it again!!!"});
 });
 
-const SPOTIFY_CLIENT_ID = "02aacbb9263148b9b80ab9f43a05c7a3";
-const SPOTIFY_CLIENT_SECRET = "9e14c26637d347b0a9ad2257a3abfcc7";
+const SPOTIFY_CLIENT_ID = "183adbc3728e4d3b8fbadf6ac68317f1";
+const SPOTIFY_CLIENT_SECRET = "09bd6e0bb76543a292a48adcea188b4f";
 const SPOTIFY_REDIRECT_URI = "http://localhost:3000/redirect";
 const SPOTIFY_TOKEN_URL = "https://accounts.spotify.com/api/token";
 
@@ -106,7 +106,7 @@ const saveSongsToFirebaseStore = async (songs) => {
     batch.set(songRef, song.track);
   });
 
-  await batch.commit();
+  await batch.commit();ƒ
   console.log("Songs have been saved to Firestore.");
 };
 
