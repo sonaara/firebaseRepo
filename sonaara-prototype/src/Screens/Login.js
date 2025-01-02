@@ -3,7 +3,7 @@ import Button from "../components/Button";
 import Icon from "../components/Icon";
 import { Link } from "react-router-dom";
 
-const SPOTIFY_CLIENT_ID = "02aacbb9263148b9b80ab9f43a05c7a3";
+const SPOTIFY_CLIENT_ID = "52103d3733a448c0a2079a746e239414";
 const SPOTIFY_REDIRECT_URI = "http://localhost:3000/redirect";
 const SPOTIFY_AUTH_URL = "https://accounts.spotify.com/authorize";
 const SPOTIFY_SCOPE =

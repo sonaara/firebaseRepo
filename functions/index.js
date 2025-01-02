@@ -12,8 +12,8 @@ exports.helloWorld = onRequest({cors: true}, (request, response) => {
   response.send({message: "do it again!!!"});
 });
 
-const SPOTIFY_CLIENT_ID = "183adbc3728e4d3b8fbadf6ac68317f1";
-const SPOTIFY_CLIENT_SECRET = "09bd6e0bb76543a292a48adcea188b4f";
+const SPOTIFY_CLIENT_ID = "52103d3733a448c0a2079a746e239414";
+const SPOTIFY_CLIENT_SECRET = "e79b11db162f435b80010ebf51058885";
 const SPOTIFY_REDIRECT_URI = "http://localhost:3000/redirect";
 const SPOTIFY_TOKEN_URL = "https://accounts.spotify.com/api/token";
 
@@ -23,8 +23,8 @@ exports.token = onRequest({cors: true}, async (req, res) => {
   try {
     console.log("getting access token");
     const {accessToken, refreshToken} = await fetchSpotifyAccessAndRefreshToken(code);
-    console.log('access token:')
-    console.log(accessToken)
+    console.log("access token:");
+    console.log(accessToken);
     console.log("getting profile");
     const profile = await fetchUserProfile(accessToken);
     console.log(profile);
@@ -106,7 +106,7 @@ const saveSongsToFirebaseStore = async (songs) => {
     batch.set(songRef, song.track);
   });
 
-  await batch.commit();ƒ
+  await batch.commit();
   console.log("Songs have been saved to Firestore.");
 };
 
@@ -114,8 +114,8 @@ const fetchUserProfile = async (accessToken) => {
   const response = await fetch("https://api.spotify.com/v1/me", {
     headers: {Authorization: `Bearer ${accessToken}`},
   });
-  console.log('error!!!!!!')
-  console.log(response)
+  console.log("error!!!!!!");
+  console.log(response);
 
   if (!response.ok) {
     const error = new Error(`Error fetching user profile: ${response.statusText}`);
